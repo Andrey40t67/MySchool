@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>GradePay 95 — Скобки-навигация: Профили • Дневник • Ввод • Итоги • Гайд</title>
+<meta name="theme-color" content="#0b5aa7"/>
+
+<!-- 🔹 ФАВИКОН: картинка для вкладки браузера -->
+<link rel="icon" type="image/png" sizes="32x32" href="https://i.ibb.co/chQzx6c1/images.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://i.ibb.co/chQzx6c1/images.png">
+<link rel="shortcut icon" href="https://i.ibb.co/chQzx6c1/images.png">
+<link rel="apple-touch-icon" href="https://i.ibb.co/chQzx6c1/images.png">
+
+<style>
+/* ============================= THEME: Win95 чистый ============================= */
+:root{
+  --desk:#1c222a; --face:#e6e6e6; --ink:#0e0e0e; --edge:#9a9a9a;
+  --t1:#0b5aa7; --t2:#073f7d; --ok:#0a7d2a; --bad:#a31c1c; --warn:#b27d00; --accent:#0a77d5;
+  --muted:#6b6b6b; --hl:#ffd400; --face2:#f5f5f5;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:"MS Sans Serif",Tahoma,Arial,sans-serif;color:#111;background:linear-gradient(180deg,#161b21,#1c222a)}
+.app{max-width:1200px;margin:0 auto;padding:14px}
+.win{background:var(--face);border:2px solid var(--ink);
+  box-shadow:inset -1px -1px 0 var(--ink),inset 1px 1px 0 #fff,inset -2px -2px 0 var(--edge),inset 2px 2px 0 var(--face)}
+.title{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:8px;color:#fff;
+  padding:6px 8px;font-weight:bold;background:linear-gradient(var(--t1),var(--t2))}
+.title .r{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.btn{display:inline-block;padding:6px 10px;background:var(--face);cursor:pointer;user-select:none;
+  box-shadow:inset -1px -1px 0 var(--ink),inset 1px 1px 0 #fff,inset -2px -2px 0 var(--edge),inset 2px 2px 0 var(--face)}
+.btn:active{box-shadow:inset 1px 1px 0 var(--ink),inset -1px -1px 0 #fff,inset 2px 2px 0 var(--edge),inset -2px -2px 0 var(--face);transform:translateY(1px)}
+input[type="text"],input[type="number"],input[type="week"],select{
+  background:#fff;border:none;padding:6px 7px;min-width:110px;
+  box-shadow:inset -1px -1px 0 var(--ink),inset 1px 1px 0 #fff,inset -2px -2px 0 var(--edge),inset 2px 2px 0 var(--face)}
+.badge{padding:2px 6px;background:#f7f7f7;border:1px solid #9a9a9a}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+h3{margin:0 0 10px;font-weight:normal}
+.sep{height:1px;background:#cfcfcf;margin:10px 0}
+
+/* ============================= LAYOUT: Левое меню «скобки» ============================= */
+.layout{display:grid;grid-template-columns:230px 1fr;gap:10px;min-height:70vh}
+.nav{background:var(--face);padding:10px;border-right:2px solid var(--ink);
+  box-shadow:inset -1px 0 0 var(--ink),inset 1px 0 0 #fff; position:relative}
+
+/* 🔹 Кнопка «три точки» для сворачивания меню */
+.nav .navToggle{
+  position:absolute; top:8px; right:8px; width:28px; height:28px; line-height:26px;
+  background:#fff; border:1px solid #9a9a9a; cursor:pointer; text-align:center; user-select:none;
+}
+.nav .navToggle:active{transform:translateY(1px)}
+
+.nav .brand{margin-bottom:8px;font-size:13px;color:#fff;background:linear-gradient(var(--t1),var(--t2));padding:6px 8px}
+.nav .br{display:block;width:100%;text-align:left;margin:4px 0;padding:8px 10px;cursor:pointer;background:#fff;border:1px solid #9a9a9a}
+.nav .br::before{content:"⟦ ";color:#000}
+.nav .br::after{content:" ⟧";color:#000}
+.nav .br.active{background:#eaf3ff;border-color:var(--accent);outline:1px dotted var(--ink)}
+.content{padding:10px}
+.page{display:none}
+.page.active{display:block}
+
+/* 🔹 Свернутое состояние меню */
+.layout.collapsed{grid-template-columns:56px 1fr}
+.layout.collapsed .nav .brand,
+.layout.collapsed .nav .br{display:none}
+.layout.collapsed .nav{padding-right:10px} /* оставляем только кнопку ⋮ */
+
+/* ============================= PROFILES ============================= */
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:#fff;border:1px solid #888;cursor:pointer}
+.pill.active{background:#eaf3ff;border-color:var(--accent)}
+.avatar{width:18px;height:18px;display:inline-grid;place-items:center;background:#cfe7ff;border:1px solid #6ea8e7;font-weight:bold}
+
+/* ============================= JOURNAL ============================= */
+.log{max-height:380px;overflow:auto;background:#fff;margin:0;padding:0;list-style:none;
+  box-shadow:inset -1px -1px 0 var(--ink),inset 1px 1px 0 #fff,inset -2px -2px 0 var(--edge),inset 2px 2px 0 var(--face)}
+.log li{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:center;padding:7px 8px;border-bottom:1px dashed #c9c9c9}
+.log .del{cursor:pointer}
+.money.plus{color:var(--ok);font-weight:bold}
+.money.minus{color:var(--bad);font-weight:bold}
+
+/* ============================= CHART ============================= */
+canvas{width:100%;height:180px;display:block;background:
+  repeating-linear-gradient(0deg,#f7f7f7,#f7f7f7 31px,#efefef 31px,#efefef 32px);border:1px solid #8a8a8a}
+
+/* ============================= TABS (внутри «Ввод») ============================= */
+.tabs{display:flex;gap:6px;margin-bottom:8px}
+.tab{padding:6px 10px;background:var(--face);cursor:pointer}
+.tab.active{background:#fff;outline:1px dotted var(--ink)}
+.panel{display:none}
+.panel.active{display:block}
+
+/* ============================= FOOTER KPI ============================= */
+.footer{position:sticky;bottom:0;z-index:10;background:var(--face);padding:6px 8px;border-top:2px solid var(--ink);
+  box-shadow:inset -1px 1px 0 #fff,inset 1px -1px 0 #fff}
+.kpi{display:flex;gap:10px;flex-wrap:wrap}
+.kpi .card{background:#fff;padding:6px 10px;border:1px solid #9a9a9a}
+.progress{height:12px;background:#d9d9d9;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #9a9a9a}
+.progress>span{display:block;height:100%;width:0;background:repeating-linear-gradient(45deg,#0a77d5,#0a77d5 10px,#0b9bd8 10px,#0b9bd8 20px);transition:width .35s}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="win">
+    <div class="title">
+      GradePay 95 — навигация «скобками»
+      <div class="r">
+        <button class="btn" id="btnExportCsv">CSV</button>
+        <button class="btn" id="btnExportJson">Экспорт JSON</button>
+        <label class="btn" style="position:relative;overflow:hidden">
+          Импорт JSON
+          <input id="importJson" type="file" accept="application/json" style="position:absolute;inset:0;opacity:0;cursor:pointer"/>
+        </label>
+        <button class="btn" id="btnResetWeek">Сброс недели</button>
+      </div>
+    </div>
+
+    <div class="layout" id="layout">
+      <!-- NAV -->
+      <aside class="nav" id="leftNav">
+        <button class="navToggle" id="navToggle" title="Свернуть/развернуть меню">⋮</button>
+        <div class="brand">Разделы</div>
+        <button class="br" data-go="profiles">Профили</button>
+        <button class="br" data-go="diary">Дневник</button>
+        <button class="br" data-go="input">Ввод</button>
+        <button class="br" data-go="summary">Итоги</button>
+        <button class="br" data-go="guide">Гайд</button>
+      </aside>
+
+      <!-- CONTENT -->
+      <main class="content">
+        <!-- Профили -->
+        <section id="page-profiles" class="page">
+          <h3>Профили</h3>
+          <div class="row">
+            <div id="profiles" class="pills"></div>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <input type="text" id="newProfileName" placeholder="Имя ребёнка"/>
+            <button class="btn" id="addProfile">+ Профиль</button>
+          </div>
+          <div class="sep"></div>
+          <h3>Управление</h3>
+          <div id="profilesManage"></div>
+          <div class="badge" style="margin-top:8px">Каждый профиль хранит свои недели, правила и журнал. Перед удалением — сделайте экспорт JSON.</div>
+        </section>
+
+        <!-- Дневник -->
+        <section id="page-diary" class="page">
+          <h3>Дневник недели</h3>
+          <div class="row" style="margin-bottom:6px">
+            <label>Неделя: <input type="week" id="weekPick"></label>
+            <input type="text" id="filterSubject" placeholder="Фильтр по предмету…"/>
+            <select id="filterDay">
+              <option value="">День…</option><option>Пн</option><option>Вт</option><option>Ср</option><option>Чт</option><option>Пт</option><option>Сб</option>
+            </select>
+            <button class="btn" id="clearFilters">Сброс фильтров</button>
+            <span class="badge">Удаляйте строки (🗑) или «Отменить» — снимет последнюю запись</span>
+            <span class="row" style="margin-left:auto">
+              <button class="btn" id="undo">Отменить</button>
+              <button class="btn" id="clearLog">Очистить журнал</button>
+            </span>
+          </div>
+          <ul id="log" class="log"></ul>
+        </section>
+
+        <!-- Ввод -->
+        <section id="page-input" class="page">
+          <h3>Ввод оценок</h3>
+          <div class="tabs">
+            <div class="tab active" data-tab="tap">Кнопки</div>
+            <div class="tab" data-tab="qty">Количество</div>
+            <div class="tab" data-tab="voice">Диктовка</div>
+          </div>
+
+          <div id="panel-tap" class="panel active">
+            <div class="row" style="margin:8px 0">
+              <input type="text" id="subject" placeholder="Предмет (например, Математика)"/>
+              <select id="daySelect">
+                <option value="">День…</option><option>Пн</option><option>Вт</option><option>Ср</option><option>Чт</option><option>Пт</option><option>Сб</option>
+              </select>
+              <button class="btn" data-add="5">+ 5</button>
+              <button class="btn" data-add="4">+ 4</button>
+              <button class="btn" data-add="3">+ 3</button>
+              <button class="btn" data-add="2">+ 2</button>
+              <span class="badge">Горячие клавиши: 5 / 4 / 3 / 2</span>
+            </div>
+          </div>
+
+          <div id="panel-qty" class="panel">
+            <div class="row" style="margin:8px 0">
+              <label>«5»: <input type="number" id="q5" min="0" value="0"></label>
+              <label>«4»: <input type="number" id="q4" min="0" value="0"></label>
+              <label>«3»: <input type="number" id="q3" min="0" value="0"></label>
+              <label>«2»: <input type="number" id="q2" min="0" value="0"></label>
+              <button class="btn" id="applyQty">Применить</button>
+              <button class="btn" id="clearQty">Обнулить</button>
+              <span class="badge" id="qtyPreview">Предпросчёт: 0 ₽</span>
+            </div>
+            <div class="badge">«Применить» синхронизирует журнал: добавит/уберёт строки, чтобы совпадали счётчики.</div>
+          </div>
+
+          <div id="panel-voice" class="panel">
+            <div class="row" style="margin:8px 0">
+              <button class="btn" id="startRec">🎙 Старт</button>
+              <button class="btn" id="stopRec" disabled>Стоп</button>
+              <span class="badge" id="recState">off</span>
+            </div>
+            <div class="badge" id="liveText"></div>
+            <div class="badge">Примеры: «пять по математике в пн», «четыре по русскому», «три в ср».</div>
+          </div>
+        </section>
+
+        <!-- Итоги -->
+        <section id="page-summary" class="page">
+          <h3>Итоги недели</h3>
+          <div class="row">
+            <label>Неделя: <input type="week" id="weekPick2"></label>
+            <label>5 = <input type="number" id="p5" value="300" step="50"></label>
+            <label>4 = <input type="number" id="p4" value="150" step="50"></label>
+            <label>3 = <input type="number" id="p3" value="-150" step="50"></label>
+            <label>2 = <input type="number" id="p2" value="-300" step="50"></label>
+            <label style="margin-left:auto">Цель (₽): <input type="number" id="goal" value="1000" step="50"></label>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <div class="badge" id="achievements">Ачивки появятся по мере прогресса</div>
+          </div>
+          <canvas id="chart"></canvas>
+        </section>
+
+        <!-- Гайд -->
+        <section id="page-guide" class="page">
+          <h3>Гайд для родителей</h3>
+          <ol>
+            <li><b>Создайте профиль ребёнка.</b> У каждого свои правила и журнал.</li>
+            <li><b>Выберите неделю.</b> Данные раздельно по неделям.</li>
+            <li><b>Настройте цены и цель.</b> 5/4 — плюс, 3/2 — штрафы.</li>
+            <li><b>Фиксируйте факты.</b> Ввод кнопками, количеством или диктовкой.</li>
+            <li><b>Ежедневно 3 минуты.</b> Что получилось? Что улучшим завтра?</li>
+            <li><b>Награды.</b> 50% цели — аванс, 100% — «зарплата»/поход в кино и т.п.</li>
+            <li><b>Ачивки.</b> Без двоек, серия «5», стабильные «4» — отмечайте прогресс.</li>
+            <li><b>Не сравнивайте с другими.</b> Только с прошлой неделей ребёнка.</li>
+            <li><b>Экспорт/Импорт.</b> CSV для отчёта, JSON — полный бэкап.</li>
+            <li><b>Если что-то пошло не так —</b> «Сброс недели» и спокойно дальше.</li>
+          </ol>
+        </section>
+      </main>
+    </div>
+
+    <!-- FOOTER KPI -->
+    <div class="footer">
+      <div class="kpi">
+        <div class="card">Профиль: <b id="kProfile">—</b></div>
+        <div class="card">Неделя: <b id="kWeek">—</b></div>
+        <div class="card">Итог: <b id="kTotal">0 ₽</b></div>
+        <div class="card">Цель: <b id="kGoal">—</b></div>
+        <div class="card">Выполнено: <b id="kPct">0%</b></div>
+        <div class="card">Статус: <b id="kBadge">Старт</b></div>
+      </div>
+      <div class="progress" style="margin-top:6px"><span id="kBar"></span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================= HELPERS & STATE ============================= */
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const money=n=>(n>=0? n.toLocaleString('ru-RU')+' ₽':'−'+Math.abs(n).toLocaleString('ru-RU')+' ₽');
+const esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+
+const Store=(()=>{
+  const st={profileId:null,profileName:'',week:'',prices:{5:300,4:150,3:-150,2:-300},goal:1000,counts:{5:0,4:0,3:0,2:0},log:[]};
+  const subs=new Set();
+  const get=()=>JSON.parse(JSON.stringify(st));
+  const set=x=>{Object.assign(st,x); notify();};
+  const setCounts=x=>{st.counts=x; notify();};
+  const setLog=x=>{st.log=x; notify();};
+  const addEntry=it=>{st.log.unshift(it); st.counts[it.grade]=(st.counts[it.grade]||0)+1; notify();};
+  const removeEntry=id=>{const i=st.log.findIndex(x=>x.id===id); if(i>=0){const g=st.log[i].grade; st.log.splice(i,1); st.counts[g]=Math.max(0,(st.counts[g]||0)-1); notify();}};
+  const undo=()=>{if(!st.log.length) return; const it=st.log.shift(); st.counts[it.grade]=Math.max(0,(st.counts[it.grade]||0)-1); notify();};
+  const clearWeek=()=>{st.counts={5:0,4:0,3:0,2:0}; st.log=[]; notify();};
+  const subscribe=fn=>subs.add(fn), unsubscribe=fn=>subs.delete(fn), notify=()=>subs.forEach(fn=>fn(get()));
+  return {get,set,setCounts,setLog,addEntry,removeEntry,undo,clearWeek,subscribe,unsubscribe};
+})();
+
+/* ============================= PROFILES LIST ============================= */
+let profiles=[];
+function loadProfiles(){ try{profiles=JSON.parse(localStorage.getItem('gp_profiles_v1')||'[]');}catch{profiles=[]}
+  if(!profiles.length){ profiles=[{id:uid(),name:'Ребёнок'}]; saveProfiles(); }
+  drawProfiles(); selectProfile(profiles[0].id);
+}
+function saveProfiles(){ localStorage.setItem('gp_profiles_v1', JSON.stringify(profiles)); }
+function drawProfiles(){
+  const box=$('#profiles'); box.innerHTML='';
+  profiles.forEach(p=>{
+    const el=document.createElement('div'); el.className='pill'; el.dataset.id=p.id;
+    el.innerHTML=`<span class="avatar">${(p.name||'?')[0]?.toUpperCase()||'?'}</span><span>${p.name||'Без имени'}</span>`;
+    el.onclick=()=>selectProfile(p.id);
+    box.appendChild(el);
+  });
+  drawProfilesManage();
+}
+function drawProfilesManage(){
+  const box=$('#profilesManage'); box.innerHTML='';
+  profiles.forEach(p=>{
+    const row=document.createElement('div'); row.className='row';
+    const inp=document.createElement('input'); inp.value=p.name; inp.style.minWidth='180px';
+    const use=document.createElement('button'); use.className='btn'; use.textContent='Сделать активным';
+    const del=document.createElement('button'); del.className='btn'; del.textContent='Удалить';
+    inp.oninput=()=>{p.name=inp.value; saveProfiles(); drawProfiles(); if(Store.get().profileId===p.id) Store.set({profileName:p.name});};
+    use.onclick=()=>selectProfile(p.id);
+    del.onclick=()=>{
+      if(!confirm('Удалить профиль и все его недели?')) return;
+      // wipe weeks
+      Object.keys(localStorage).forEach(k=>{ if(k.startsWith('gp_data_'+p.id+'_')) localStorage.removeItem(k); });
+      profiles=profiles.filter(x=>x.id!==p.id); if(!profiles.length){profiles=[{id:uid(),name:'Ребёнок'}];}
+      saveProfiles(); drawProfiles(); selectProfile(profiles[0].id);
+    };
+    row.appendChild(inp); row.appendChild(use); row.appendChild(del);
+    box.appendChild(row);
+  });
+}
+$('#addProfile').onclick=()=>{
+  const name=($('#newProfileName').value||'').trim()||'Без имени';
+  const p={id:uid(),name}; profiles.push(p); saveProfiles(); drawProfiles(); selectProfile(p.id); $('#newProfileName').value='';
+};
+
+function ensureISOWeek(){
+  const now=new Date();
+  const t=new Date(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()));
+  const dow=t.getUTCDay()||7; t.setUTCDate(t.getUTCDate()+4-dow);
+  const s=new Date(Date.UTC(t.getUTCFullYear(),0,1));
+  const w=String(Math.ceil((((t-s)/86400000)+1)/7)).padStart(2,'0');
+  const val=now.getUTCFullYear()+'-W'+w;
+  $('#weekPick').value=val; $('#weekPick2').value=val;
+  return val;
+}
+function key(){ const s=Store.get(); return 'gp_data_'+s.profileId+'_'+(s.week||ensureISOWeek()); }
+function saveWeek(){ const s=Store.get(); localStorage.setItem(key(), JSON.stringify({prices:s.prices,goal:s.goal,counts:s.counts,log:s.log})); renderKPI(); }
+function loadWeek(){
+  const raw=localStorage.getItem(key());
+  if(!raw){
+    Store.set({prices:{5:300,4:150,3:-150,2:-300},goal:1000}); Store.setCounts({5:0,4:0,3:0,2:0}); Store.setLog([]);
+  }else{
+    try{ const d=JSON.parse(raw);
+      Store.set({prices:d.prices||{5:300,4:150,3:-150,2:-300},goal:d.goal||1000});
+      Store.setCounts(d.counts||{5:0,4:0,3:0,2:0}); Store.setLog(d.log||[]);
+    }catch{ Store.set({prices:{5:300,4:150,3:-150,2:-300},goal:1000}); Store.setCounts({5:0,4:0,3:0,2:0}); Store.setLog([]); }
+  }
+  renderAll(Store.get());
+}
+
+function selectProfile(id){
+  const p=profiles.find(x=>x.id===id); if(!p) return;
+  const week=ensureISOWeek();
+  Store.set({profileId:id,profileName:p.name,week});
+  $$('#profiles .pill').forEach(n=>n.classList.toggle('active', n.dataset.id===id));
+  loadWeek(); renderKPI();
+}
+
+/* ============================= NAV (скобки) ============================= */
+const routes=['profiles','diary','input','summary','guide'];
+function go(to){ routes.forEach(r=>{ $('#page-'+r).classList.toggle('active', r===to); }); $$('.nav .br').forEach(b=>b.classList.toggle('active', b.dataset.go===to)); location.hash=to; }
+window.addEventListener('hashchange',()=>{ const h=location.hash.replace('#',''); if(routes.includes(h)) go(h); });
+$$('.nav .br').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
+go(location.hash.replace('#','')||'diary');
+
+/* 🔹 Переключатель свёрнутого меню (три точки) */
+const layout = document.getElementById('layout');
+const navToggle = document.getElementById('navToggle');
+if (localStorage.getItem('gp_nav_collapsed')==='1') layout.classList.add('collapsed');
+navToggle.addEventListener('click', ()=>{
+  layout.classList.toggle('collapsed');
+  localStorage.setItem('gp_nav_collapsed', layout.classList.contains('collapsed') ? '1' : '0');
+});
+
+/* ============================= RENDER ============================= */
+Store.subscribe(renderAll);
+function renderAll(s){
+  // summary inputs reflect store
+  $('#p5').value=s.prices[5]; $('#p4').value=s.prices[4]; $('#p3').value=s.prices[3]; $('#p2').value=s.prices[2]; $('#goal').value=s.goal;
+  // qty mirrors counts
+  $('#q5').value=s.counts[5]; $('#q4').value=s.counts[4]; $('#q3').value=s.counts[3]; $('#q2').value=s.counts[2];
+  // footer
+  $('#kProfile').textContent=s.profileName||'—'; $('#kWeek').textContent=s.week||'—';
+  renderKPI(); renderAchievements(s); drawLog(s); drawChart(s.counts);
+  updateQtyPreview();
+}
+function renderKPI(){
+  const s=Store.get();
+  const total=s.counts[5]*s.prices[5]+s.counts[4]*s.prices[4]+s.counts[3]*s.prices[3]+s.counts[2]*s.prices[2];
+  $('#kTotal').textContent=money(total);
+  $('#kGoal').textContent=s.goal?money(s.goal):'—';
+  const pct=s.goal?Math.max(0,Math.min(100,Math.round(total/s.goal*100))):0;
+  $('#kPct').textContent=s.goal?(pct+'%'):'—'; $('#kBar').style.width=(s.goal?pct:0)+'%';
+  $('#kBadge').textContent=s.goal&&total>=s.goal?'Цель достигнута 🎉': total>0?'В движении ↗': (total<0?'Нужно подтянуться':'Старт');
+}
+function renderAchievements(s){
+  const a=[];
+  if(s.counts[2]===0 && (s.counts[5]+s.counts[4]+s.counts[3])>0) a.push('Без двоек 🥇');
+  if(s.counts[5]>=3) a.push('Три пятёрки 🥈');
+  if(s.counts[4]>=5) a.push('Стабильно «4» 🥉');
+  if((s.counts[5]+s.counts[4])>=8) a.push('Сильная неделя 💪');
+  $('#achievements').textContent=a.length?a.join(' • '):'Ачивки появятся по мере прогресса';
+}
+
+/* ============================= JOURNAL DRAW + FILTERS ============================= */
+function drawLog(s){
+  const ul=$('#log'); if(!ul) return; ul.innerHTML='';
+  const fs=($('#filterSubject').value||'').trim().toLowerCase();
+  const fd=$('#filterDay').value||'';
+  s.log.forEach(it=>{
+    const subj=(it.subj||'').toLowerCase();
+    if(fs && !subj.includes(fs)) return;
+    if(fd && (it.day||'')!==fd) return;
+    const li=document.createElement('li'); li.dataset.id=it.id;
+    li.innerHTML=`<span class="t"><span class="g">${it.grade}</span> — ${esc(it.subj)||'без предмета'} ${it.day? '('+it.day+')':''}</span>
+                  <span class="badge src">${it.src||'ввод'}</span>
+                  <span class="money ${it.amount>=0?'plus':'minus'}">${money(it.amount)}</span>
+                  <span class="del" title="Удалить">🗑</span>`;
+    li.querySelector('.del').onclick=()=>{Store.removeEntry(it.id); saveWeek();};
+    ul.appendChild(li);
+  });
+}
+$('#filterSubject')?.addEventListener('input', ()=>drawLog(Store.get()));
+$('#filterDay')?.addEventListener('input', ()=>drawLog(Store.get()));
+$('#clearFilters')?.addEventListener('click', ()=>{ $('#filterSubject').value=''; $('#filterDay').value=''; drawLog(Store.get()); });
+$('#undo')?.addEventListener('click', ()=>{ Store.undo(); saveWeek(); });
+$('#clearLog')?.addEventListener('click', ()=>{
+  if(!confirm('Очистить журнал недели? Счётчики тоже обнулятся.')) return;
+  Store.clearWeek(); saveWeek();
+});
+
+/* ============================= CHART ============================= */
+function drawChart(counts){
+  const c=$('#chart'); if(!c) return; const ctx=c.getContext('2d');
+  const W=c.width=c.clientWidth*2, H=c.height=180*2; ctx.clearRect(0,0,W,H);
+  const data=[counts[5],counts[4],counts[3],counts[2]], labels=['5','4','3','2']; const max=Math.max(1,...data);
+  const pad=40, col=(W-pad*2)/4, bw=col*0.6;
+  data.forEach((v,i)=>{
+    const x=pad+i*col+(col-bw)/2, h=(v/max)*(H-pad*1.6), y=H-pad-h;
+    ctx.fillStyle=i<2?'#0a7d2a':(i===2?'#b77e00':'#a31c1c'); ctx.fillRect(x,y,bw,h);
+    ctx.fillStyle='#000'; ctx.font='28px Tahoma'; ctx.textAlign='center';
+    ctx.fillText(labels[i], x+bw/2, H-10); ctx.fillText(v, x+bw/2, y-8);
+  });
+}
+
+/* ============================= INPUT: кнопки / qty / hotkeys ============================= */
+function addEntry(grade, subj='', day='', src='ввод'){
+  const s=Store.get(); const amt=s.prices[grade];
+  Store.addEntry({id:Date.now().toString(36)+uid(),grade,subj,day,amount:amt,src}); saveWeek();
+  $('#log')?.scrollTo({top:0});
+}
+$$('[data-add]').forEach(b=>b.addEventListener('click',()=>{
+  addEntry(+b.dataset.add, $('#subject').value.trim(), $('#daySelect').value, 'кнопка');
+  $('#subject').value=''; $('#daySelect').value='';
+}));
+document.addEventListener('keydown',e=>{
+  if(/input|select|textarea/i.test(e.target.tagName)) return;
+  if(['5','4','3','2'].includes(e.key)) addEntry(+e.key,'','', 'клавиша');
+});
+
+/* Количество */
+function qObj(){ return {5:+$('#q5').value||0,4:+$('#q4').value||0,3:+$('#q3').value||0,2:+$('#q2').value||0}; }
+function updateQtyPreview(){
+  if(!$('#qtyPreview')) return;
+  const s=Store.get(), q=qObj();
+  const t=q[5]*s.prices[5]+q[4]*s.prices[4]+q[3]*s.prices[3]+q[2]*s.prices[2];
+  $('#qtyPreview').textContent='Предпросчёт: '+money(t);
+}
+['#q5','#q4','#q3','#q2'].forEach(sel=>$(sel)?.addEventListener('input', updateQtyPreview));
+$('#clearQty')?.addEventListener('click',()=>{['#q5','#q4','#q3','#q2'].forEach(sel=>$(sel).value=0); updateQtyPreview();});
+$('#applyQty')?.addEventListener('click',()=>{ syncLogToCounts(qObj()); });
+
+function syncLogToCounts(target){
+  const s=Store.get(); const cur={...s.counts};
+  const kept={5:0,4:0,3:0,2:0}; const newLog=[];
+  for(const it of s.log){ const g=it.grade; if(kept[g]<target[g]){ newLog.push(it); kept[g]++; } }
+  const toAdd={5:target[5]-kept[5],4:target[4]-kept[4],3:target[3]-kept[3],2:target[2]-kept[2]};
+  const adds=[];
+  Object.entries(toAdd).forEach(([g,d])=>{ for(let i=0;i<d;i++) adds.push({id:Date.now().toString(36)+uid(),grade:+g,subj:'',day:'',amount:s.prices[+g],src:'кол-во'}); });
+  Store.setLog(adds.concat(newLog)); Store.setCounts(target); saveWeek();
+  $('#q5').value=target[5]; $('#q4').value=target[4]; $('#q3').value=target[3]; $('#q2').value=target[2]; updateQtyPreview();
+}
+
+/* Tabs inside Input */
+$$('.tab').forEach(t=>t.addEventListener('click',()=>{
+  $$('.tab').forEach(x=>x.classList.remove('active')); $$('.panel').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active'); $('#panel-'+t.dataset.tab).classList.add('active');
+}));
+
+/* ============================= PRICES & GOAL ============================= */
+['p5','p4','p3','p2'].forEach(id=>{
+  $('#'+id)?.addEventListener('input',()=>{ const s=Store.get(); const prices={...s.prices}; prices[+id.slice(1)]=+$('#'+id).value||0; Store.set({prices}); saveWeek(); updateQtyPreview(); });
+});
+$('#goal')?.addEventListener('input',()=>{ Store.set({goal:+$('#goal').value||0}); saveWeek(); });
+
+/* Weeks (both places) */
+function setWeekAll(val){ Store.set({week:val}); $('#weekPick').value=val; $('#weekPick2').value=val; loadWeek(); }
+$('#weekPick')?.addEventListener('input',()=>setWeekAll($('#weekPick').value));
+$('#weekPick2')?.addEventListener('input',()=>setWeekAll($('#weekPick2').value));
+
+/* ============================= VOICE ============================= */
+const recBadge=$('#recState'), live=$('#liveText'); let recog=null;
+function SR(){ return window.SpeechRecognition||window.webkitSpeechRecognition; }
+function ensureRec(){ const R=SR(); if(!R){ alert('Диктовка требует Chrome/Edge/Safari и доступ к микрофону.'); return null; } const r=new R(); r.lang='ru-RU'; r.interimResults=true; r.continuous=true; return r; }
+function parseSpeech(text){
+  const t=text.toLowerCase().replace(/[.,!?]/g,' ').replace(/\s+/g,' ').trim();
+  let day=''; if(t.includes('пн')) day='Пн'; else if(t.includes('вт')) day='Вт'; else if(t.includes('ср')) day='Ср'; else if(t.includes('чт')) day='Чт'; else if(t.includes('пт')) day='Пт'; else if(t.includes('сб')) day='Сб';
+  let subj=''; const m=t.match(/по ([а-яёa-z ]{2,30})/i); if(m) subj=m[1].trim();
+  let g=null; if(/\b5\b/.test(t)||t.includes('пять')) g=5; else if(/\b4\b/.test(t)||t.includes('четыр')) g=4; else if(/\b3\b/.test(t)||t.includes('три')) g=3; else if(/\b2\b/.test(t)||t.includes('два')) g=2;
+  if(g!=null) addEntry(g, subj, day, 'голос');
+}
+$('#startRec')?.addEventListener('click',()=>{
+  if(recog) return; recog=ensureRec(); if(!recog) return;
+  recBadge.textContent='listening…'; $('#stopRec').disabled=false; let interim='';
+  recog.onresult=(e)=>{ let fin=''; for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i]; if(r.isFinal) fin+=r[0].transcript+' '; else interim+=r[0].transcript;}
+    if(fin){ live.textContent='→ '+fin.trim(); parseSpeech(fin); interim=''; } else live.textContent=interim; };
+  recog.onend=()=>{ recBadge.textContent='off'; $('#stopRec').disabled=true; recog=null; };
+  recog.start();
+});
+$('#stopRec')?.addEventListener('click',()=>{ if(recog) recog.stop(); });
+
+/* ============================= EXPORT / IMPORT / RESET ============================= */
+$('#btnExportCsv')?.addEventListener('click',()=>{
+  const s=Store.get();
+  const rows=[['Профиль',s.profileName],['Неделя',s.week],
+    ['Прайс 5',s.prices[5]],['Прайс 4',s.prices[4]],['Прайс 3',s.prices[3]],['Прайс 2',s.prices[2]],
+    ['Цель',s.goal],[],['Запись','Источник','Сумма']];
+  s.log.slice().reverse().forEach(it=>rows.push([`${it.grade} — ${it.subj||''} ${it.day||''}`.trim(), it.src||'', money(it.amount)]));
+  const total=s.counts[5]*s.prices[5]+s.counts[4]*s.prices[4]+s.counts[3]*s.prices[3]+s.counts[2]*s.prices[2];
+  rows.push([]); rows.push(['ИТОГО','',money(total)]);
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})); a.download=`gradepay_${s.profileName||'profile'}_${s.week||'week'}.csv`; a.click();
+});
+$('#btnExportJson')?.addEventListener('click',()=>{
+  const dump={profiles:JSON.parse(JSON.stringify(profiles)),data:{}};
+  profiles.forEach(p=>{
+    dump.data[p.id]={};
+    Object.keys(localStorage).forEach(k=>{
+      const pref='gp_data_'+p.id+'_';
+      if(k.startsWith(pref)){ dump.data[p.id][k.slice(pref.length)]=JSON.parse(localStorage.getItem(k)); }
+    });
+  });
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(dump,null,2)],{type:'application/json'})); a.download='gradepay_backup.json'; a.click();
+});
+$('#importJson')?.addEventListener('change',async(e)=>{
+  const f=e.target.files?.[0]; if(!f) return;
+  try{ const obj=JSON.parse(await f.text());
+    if(!obj || !Array.isArray(obj.profiles) || typeof obj.data!=='object'){ alert('Неверный JSON'); return; }
+    profiles=obj.profiles; saveProfiles(); drawProfiles();
+    Object.keys(obj.data||{}).forEach(pid=>{
+      const weeks=obj.data[pid]||{}; Object.keys(weeks).forEach(w=>localStorage.setItem('gp_data_'+pid+'_'+w, JSON.stringify(weeks[w])));
+    });
+    selectProfile(profiles[0]?.id); alert('Импорт завершён');
+  }catch(err){ console.error(err); alert('Ошибка импорта'); }
+  e.target.value='';
+});
+$('#btnResetWeek')?.addEventListener('click',()=>{ if(confirm('Сбросить неделю: обнулить счётчики и журнал?')){ Store.clearWeek(); saveWeek(); } });
+
+/* ============================= INIT ============================= */
+loadProfiles();
+ensureISOWeek();
+renderAll(Store.get());
+</script>
+</body>
+</html>
